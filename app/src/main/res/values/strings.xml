@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Fragments</string>
+
+    <string name="title_red">#B71C1C</string>
+    <string name="title_green">#1B5E20</string>
+    <string name="title_blue">#1A237E</string>
+
+</resources>
