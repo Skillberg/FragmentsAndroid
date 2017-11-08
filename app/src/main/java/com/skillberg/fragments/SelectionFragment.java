@@ -6,9 +6,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 /**
@@ -16,8 +18,14 @@ import android.widget.RadioGroup;
  */
 public class SelectionFragment extends Fragment {
 
+
+    private RadioGroup radioGroup;
+    private final SparseIntArray colorToButtonIdMap = new SparseIntArray();
+
+
     @Nullable
     private OnColorSelectedListener onColorSelectedListener;
+
 
     public SelectionFragment() {
     }
@@ -42,10 +50,48 @@ public class SelectionFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_selection, container, false);
 
-        RadioGroup radioGroup = view.findViewById(R.id.colors_rg);
+        radioGroup = view.findViewById(R.id.colors_rg);
         radioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
 
+        for (int i = 0; i < radioGroup.getChildCount(); i++) {
+            RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
+
+            int color = radioButton.getCurrentTextColor();
+            int id = radioButton.getId();
+
+            colorToButtonIdMap.append(color, id);
+        }
+
         return view;
+    }
+
+    /**
+     * Выбираем кнопку по заданному цвету
+     */
+    public synchronized void selectButtonWithColor(int color) {
+        // Находим нужный id
+        int id = colorToButtonIdMap.get(color, -1);
+
+        if (id == -1) {
+            return;
+        }
+
+        // Смотрим, какая кнопка выбрана сейчас
+        int currentlyCheckedId = radioGroup.getCheckedRadioButtonId();
+
+        // Если они равны — второй раз выбирать её не нужно
+        if (currentlyCheckedId == id) {
+            return;
+        }
+
+        // Снимаем listener, потому что иначе он сработает
+        radioGroup.setOnCheckedChangeListener(null);
+
+        // Отмечаем нужную кнопку
+        radioGroup.check(id);
+
+        // Возвращаем listener
+        radioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
     }
 
 
